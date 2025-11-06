@@ -1,0 +1,11 @@
+job_id,title,company,skills,applied,viewed,clicked
+1,Software Engineer,Acme Corp,"python, pandas, sql, aws",False,True,False
+2,Data Scientist,DataWorks,"python, pandas, sklearn, ml",False,True,False
+3,ML Engineer,ModelOps,"python, pytorch, kubernetes",False,True,False
+4,Frontend Developer,Webify,"javascript, react, css",False,True,False
+5,Backend Developer,ServeIT,"python, django, postgresql",False,True,False
+6,DevOps Engineer,InfraPros,"docker, kubernetes, aws",False,True,False
+7,Product Manager,Prodify,"roadmapping, communication, analytics",False,True,False
+8,Data Analyst,Insightful,"sql, tableau, excel",False,True,False
+9,AI Researcher,DeepMindSim,"python, tensorflow, research",False,True,False
+10,QA Engineer,Testify,"testing, selenium, python",False,True,False
