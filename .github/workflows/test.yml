@@ -17,8 +17,16 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
+        # Install torch CPU version first to avoid GPU dependencies
+        pip install torch --extra-index-url https://download.pytorch.org/whl/cpu
         pip install -r requirements.txt
+        pip install pytest pytest-cov
     
+    - name: Create test data
+      run: |
+        python create_jobs_data.py
+        
     - name: Run tests
       run: |
-        pytest tests/test_recommender.py -v
+        # Run with coverage report
+        pytest tests/test_recommender.py -v --cov=. --cov-report=term-missing

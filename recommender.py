@@ -39,20 +39,21 @@ def get_model():
 
 
 def load_jobs():
+    """Load jobs from CSV with validation of required columns."""
+    required_columns = ['job_id', 'title', 'company', 'skills']
+    optional_columns = ['location', 'seniority', 'salary_range', 'applied', 'viewed', 'clicked']
+    
     try:
-        # Try UTF-8 first
         df = pd.read_csv(JOBS_CSV, dtype={"job_id": str}, encoding='utf-8')
-    except UnicodeDecodeError:
-        # Fallback to other encodings
-        try:
-            df = pd.read_csv(JOBS_CSV, dtype={"job_id": str}, encoding='latin1')
-        except Exception:
-            # Last resort: try to detect encoding
-            import chardet
-            with open(JOBS_CSV, 'rb') as f:
-                raw = f.read()
-            encoding = chardet.detect(raw)['encoding']
-            df = pd.read_csv(JOBS_CSV, dtype={"job_id": str}, encoding=encoding)
+    except Exception as e:
+        logger.error(f"Error reading jobs CSV: {e}")
+        # Create empty DataFrame with required columns
+        df = pd.DataFrame(columns=required_columns + optional_columns)
+    
+    # Validate required columns
+    missing_cols = [col for col in required_columns if col not in df.columns]
+    if missing_cols:
+        raise ValueError(f"Missing required columns in jobs.csv: {missing_cols}")
     
     # Ensure boolean columns
     for col in ["applied", "viewed", "clicked"]:
