@@ -6,6 +6,7 @@ import numpy as np
 import pandas as pd
 from sentence_transformers import SentenceTransformer
 from sklearn.metrics.pairwise import cosine_similarity
+from user_profiles import UserProfile, get_user_profile
 
 DATA_DIR = os.path.join(os.path.dirname(__file__), "data")
 JOBS_CSV = os.path.join(DATA_DIR, "jobs.csv")
@@ -38,7 +39,21 @@ def get_model():
 
 
 def load_jobs():
-    df = pd.read_csv(JOBS_CSV, dtype={"job_id": str})
+    try:
+        # Try UTF-8 first
+        df = pd.read_csv(JOBS_CSV, dtype={"job_id": str}, encoding='utf-8')
+    except UnicodeDecodeError:
+        # Fallback to other encodings
+        try:
+            df = pd.read_csv(JOBS_CSV, dtype={"job_id": str}, encoding='latin1')
+        except Exception:
+            # Last resort: try to detect encoding
+            import chardet
+            with open(JOBS_CSV, 'rb') as f:
+                raw = f.read()
+            encoding = chardet.detect(raw)['encoding']
+            df = pd.read_csv(JOBS_CSV, dtype={"job_id": str}, encoding=encoding)
+    
     # Ensure boolean columns
     for col in ["applied", "viewed", "clicked"]:
         if col not in df.columns:
@@ -52,6 +67,13 @@ def embed_jobs(force_recompute=False):
     Returns (embeddings ndarray, jobs_df)
     """
     df = load_jobs()
+    # Clean column names from BOMs/whitespace and normalize
+    df.columns = [str(c).strip().lstrip('\ufeff') for c in df.columns]
+    # Ensure essential text columns exist
+    for col in ['title', 'company', 'skills']:
+        if col not in df.columns:
+            logger.warning(f"Column '{col}' missing from jobs CSV — filling with empty strings")
+            df[col] = ''
     model = get_model()
     if os.path.exists(EMBED_PATH) and not force_recompute:
         try:

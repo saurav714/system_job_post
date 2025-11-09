@@ -4,4 +4,5 @@ numpy>=1.21
 scikit-learn>=1.0
 sentence-transformers>=2.2
 torch>=1.12  # sentence-transformers requires PyTorch; cpu-only is fine
+chardet>=5.0  # for encoding detection
 pytest>=7.0
